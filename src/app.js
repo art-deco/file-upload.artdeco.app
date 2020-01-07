@@ -32,7 +32,7 @@ const client = new Client({
       github_id: process.env.GITHUB_ID,
       github_secret: process.env.GITHUB_SECRET,
       elastic, Mongo,
-      appName: '{{ name }}',
+      appName: 'file-upload.artdeco.app',
     })
     console.log('Started on %s', c(url, 'green'))
   } catch ({ stack }) {

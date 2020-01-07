@@ -11,8 +11,8 @@ import DefaultLayout from '../layout'
 
 const {
   NODE_ENV,
-  HOST = 'https://{{ name }}',
-  FRONT_END = 'https://{{ frontend }}',
+  HOST = 'https://file-upload.artdeco.app',
+  FRONT_END = 'https://file-upload.artdeco.app',
   CLOSURE, // for /comments page
   SESSION_KEY,
 } = process.env

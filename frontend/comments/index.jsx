@@ -31,7 +31,7 @@ class App extends Auth {
 }
 
 window['comments'] = ({
-  'host': host = 'https://api.{{ name }}', 'container': container = 'preact',
+  'host': host = 'https://api.file-upload.artdeco.app', 'container': container = 'preact',
 }) => {
   render(<App host={host}/>, document.getElementById(container))
 }

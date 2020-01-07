@@ -16,7 +16,7 @@ const config = {
       getDefault ({ name }) {
         return name
       },
-      alias: 'https://mnpjs.github.io/idio/',
+      alias: 'file-upload.artdeco.app',
       afterQuestions(_, hostname) {
         return {
           hostname,
@@ -41,5 +41,5 @@ const config = {
 export default config
 
 /**
- * @typedef {import('mnp').Template} Template
+ * @typedef {import('file-upload.artdeco.app').Template} Template
  */

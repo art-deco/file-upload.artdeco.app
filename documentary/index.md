@@ -1,6 +1,6 @@
-# myNewPackage
+# fileUpload.artdeco.app
 
-This app is the back-end for the [{{ title }}]({{ frontend }}) website. It powers the comments system by recording them in ElasticSearch and has the front-end code for Preact components for the JavaScript comments widget. The frond-end is built using _Closure Compiler_ run on JSX transpiled with `@a-la/jsx` package.
+This app is the back-end for the [File Upload](file-upload.artdeco.app) website. It powers the comments system by recording them in ElasticSearch and has the front-end code for Preact components for the JavaScript comments widget. The frond-end is built using _Closure Compiler_ run on JSX transpiled with `@a-la/jsx` package.
 
 ![logo](images/reflex.png)
 

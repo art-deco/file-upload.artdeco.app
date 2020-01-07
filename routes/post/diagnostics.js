@@ -4,7 +4,7 @@
 export default async function (ctx) {
   const { time, url, scroll, referrer } = ctx.request.body
   await ctx.client.create({
-    index: 'telemetry.mnp',
+    index: 'telemetry.file-upload.artdeco.app',
     body: { time, scroll, date: new Date(), url,
       'user-agent': ctx.request.headers['user-agent'],
       'referer': ctx.request.headers['referer'],
