@@ -1,6 +1,6 @@
 # file-upload.artdeco.app
 
-This app is the back-end for the [File Upload](https://file-upload.artdeco.app) website. It has front-end code for _Preact_ components for the JavaScript photo upload widget. The frond-end is built using _Closure Compiler_ run on JSX transpiled with `@a-la/jsx` package.
+This app is the back-end for the [File Upload](https://file-upload.artdeco.app) website. It includes the server-side code for handling of file uploads in Node.JS within the _Idio_ web server. It also has front-end code for _Preact_ components for the JavaScript photo upload widget. The frond-end is built using _Closure Compiler_ run on JSX transpiled with `@a-la/jsx` package.
 
 <a href="#README"><img src="file-upload.gif" alt="File Uploader"></a>
 
@@ -21,6 +21,7 @@ This app is the back-end for the [File Upload](https://file-upload.artdeco.app) 
   * [5. static](#5-static)
   * [6. session](#6-session)
 - [Front End](#front-end)
+  * [building](#building)
 
 <p align="center"><a href="#table-of-contents">
   <img src="/.documentary/section-breaks/1.svg?sanitize=true">
@@ -148,63 +149,115 @@ File upload is only allowed to signed-in users. The authentication is performed 
 
 ## Front End
 
-The front-end is implemented as JSX components which are rendered with the _Preact_ library. This allowed the delivered code to be as minimal as possible. The process of building consists of compiling the JSX code into plain JavaScript using the minimal reg-exp based `@a-la/jsx` transpiler. The development version is served using ES modules which are supported by the browser natively, meaning there does not need to be a compilation step involved which is very convenient since the actual compilation by Google Closure takes about a minute. Still, the JSX is not understood by the browser, but the `jsx` middleware installed on the server allows to run the transpilation of JSX source code files when `.jsx` pages are requested. There's no support for JSX source maps, however the code formatting is kept intact so that each line is where the its source is.
+The front-end is implemented as JSX components which are rendered with the _Preact_ library, which is served in a separate file. This allowed the delivered code to be as minimal as possible as Preact is smaller than _React_.
 
-```js
-import { Component } from 'preact'
-import unfetch from 'unfetch'
+### building
+
+The preprocess to building consists of automatic compiling the JSX code into plain JavaScript using the minimal reg-exp based `@a-la/jsx` transpiler. Transpiled files will be put in `depack-temp` directory and all files that reference them, since imports need to be renamed to include `.jsx` extension (otherwise, the compiler won't pick them up). If 3rd party dependency is referenced with JSX source code (like `photo-uploader`), it won't be transpiled, so that those packages need to ensure they publish build with already transpiled JSX.
+
+```m
+frontend
+├── Auth
+│   ├── AppUser.jsx
+│   ├── User.jsx
+│   ├── index.js
+│   └── lib.js
+├── index.jsx
+└── social
+    ├── GitHub
+    │   ├── icon.jsx
+    │   ├── index.jsx
+    │   └── style.css
+    └── LinkedIn
+        ├── index.jsx
+        └── style.css
+```
+
+`index.js` in an entry file, which is responsible for authenticating the user via back-end, and renderning the gallery widget. The session handling will redirect users to `/callback` route, which will post a message using `window.postMessage`, and the user info will be automatically updated upon sign in.
+
+### development
+
+The development version is served using ES modules which are supported by the browser natively, meaning there does not need to be a compilation step involved which is very convenient since the actual compilation by _Google Closure Compiler_ takes about a minute. Still, the JSX is not understood by the browser, but the `jsx` middleware installed on the server allows to run the transpilation of JSX source code files when `.jsx` pages are requested. There's no support for JSX source maps, however the code formatting is kept intact so that each line is where the its source is (unless destructuring `...` is used in props).
+
+```jsx
+import Form, { FormGroup, SubmitButton, SubmitForm } from '@depack/form'
+import PhotoUploader from 'photo-uploader'
+import Auth from './Auth'
+import AppUser from './Auth/AppUser'
+import { render } from 'preact'
+
+const _host = window['HOST'] || 'http://localhost:5000'
 
 /**
- * Fetches authorisation data from the server.
+ * This is the form to upload pictures.
  */
-export default class Auth extends Component {
+class GalleryForm extends SubmitForm {
   constructor() {
     super()
-
+    this.reset = this.reset.bind(this)
+    this.submit = this.submit.bind(this)
     this.state = {
-      loading: true,
-      error: null,
-      /** @type {!Auth} */
-      auth: {},
-    }
-    this.pml = /** @type {function(!Event)} */(this.postMessageListener.bind(this))
-
-    window.addEventListener('message', this.pml, false)
-  }
-  componentDidMount() {
-    this.auth()
-  }
-  async auth() {
-    this.setState({ loading: true })
-    try {
-      const res = await unfetch(`${this.props.host}/auth`, {
-        credentials: 'include',
-      })
-      const auth = await res.json()
-      this.setState({ auth })
-    } catch (err) {
-      this.setState({ error: err.message })
-    } finally {
-      this.setState({ loading: false })
+      ...super.state,
     }
   }
-  /**
-   * @param {!MessageEvent} event
-   */
-  postMessageListener(event) {
-    const { data, origin } = event
-    if (origin != this.props.host) return
-    if (data == 'signedin') this.auth()
-  }
-  componentWillUnmount() {
-    window.removeEventListener('message', this.pml)
+  render({ galleryId, confirmText, uploadedResults, csrf }) {
+    const { formLoading, error, success } = this.state
+    const uri = `${this.context.host}/upload?csrf=${csrf}`
+    return (
+      <Form onSubmit={this.submit}>
+        <input name="galleryId" value={galleryId} type="hidden" />
+        <FormGroup label="File Upload" help="Please select some images and upload them.">
+          <PhotoUploader uploadUri={uri} onPhotoUploaded={this.reset} onAdded={this.reset} onRemove={this.reset}
+            uploadedResults={uploadedResults}
+          />
+        </FormGroup>
+        <SubmitButton loading={formLoading} loadingText="Uploading..." confirmText={confirmText} />
+      </Form>)
   }
 }
 
-/**
- * @suppress {nonStandardJsDocs}
- * @typedef {import('../..').Auth} Auth
- */
+{/* <ErrorAlert error={error} />
+<Success success={success} message="Images saved!" /> */}
+
+class App extends Auth {
+  constructor() {
+    super()
+    this.state = {
+      ...this.state,
+      uploadedResults: [],
+    }
+  }
+  getChildContext() {
+    return {
+      host: this.props.host,
+    }
+  }
+  addUploadedResults(results) {
+    this.setState({ uploadedResults:
+      [...this.state.uploadedResults, ...results],
+    })
+  }
+  render() {
+    console.log(this.state.auth.csrf)
+    const au = (<AppUser error={this.state.error} loading={this.state.loading} auth={this.state.auth} host={this.props.host} onSignOut={() => {
+      this.setState({ auth: {} })
+    }} />)
+    if (!this.state.auth.github_user) return au
+
+    return (<div>
+      {au}
+      <GalleryForm uploadedResults={this.state.uploadedResults} path="/save" confirmText="Save Uploads" submitFinish={async (result) => {
+        // the form responds with ids of added uploads
+        const { 'data': res } = await result.json()
+        if (res) {
+          this.addUploadedResults(res)
+          // await this.load()
+        }
+      }} csrf={this.state.auth.csrf} />
+    </div>)
+  }
+}
+render(<App host={_host} />, window['preact-container'])
 ```
 
 
