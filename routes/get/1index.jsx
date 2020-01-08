@@ -7,6 +7,7 @@ export default async function index(ctx, next) {
     <h1>Idio File Upload Example</h1>
   </div>,
   <div id="preact-container"></div>,
+  ctx.PROD ? <script>{`window.HOST='${ctx.HOST}'`}</script> : null,
   !ctx.CLOSURE ? <script type="module" src="node_modules/preact/dist/preact.mjs"/> : <script src="https://cdnjs.cloudflare.com/ajax/libs/preact/8.5.3/preact.min.js"/>,
   !ctx.CLOSURE ? <script type="module" src="frontend/"/> : <script src={`${ctx.STATIC_HOST}/index.js`}/>],
   { title: 'File Upload' })
