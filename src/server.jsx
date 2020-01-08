@@ -127,6 +127,12 @@ export default async function Server({
     })
   })
 
+  router.post('/save',
+    (ctx, next) => middleware.form.none()(ctx, next),
+    (ctx) => {
+      ctx.body = { data: ctx.request.body.photos }
+    })
+
   const w = await initRoutes(router, 'routes', {
     middleware,
   })

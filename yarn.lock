@@ -388,10 +388,10 @@ pedantry@^2.3.1:
   resolved "https://registry.yarnpkg.com/pedantry/-/pedantry-2.5.0.tgz#02b2689ef64e87a1f36c731a400d305e80e96a54"
   integrity sha512-LU0IjJV+gayov2HTguIv5izijEZFB01Beq9+wwzHuFqSkLRMMg9pG7PfHzssZV1oJIfaZqWMitGwTDo8kuRHKg==
 
-photo-uploader@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/photo-uploader/-/photo-uploader-1.0.0.tgz#da7192f19b894b7bb3f6b9aae7c1bcc935b7c81e"
-  integrity sha512-vDHOfOoSjiGPeIbcKHfR/OpEQ99x6REACfETPP4ZFFcm3X4fdDLeTY9cNLTrH5N3azFtur3wdvFn4dCgXeBNaw==
+photo-uploader@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/photo-uploader/-/photo-uploader-1.1.0.tgz#bd8b001b7bdc99b8970e8c588ae1e2d808aca075"
+  integrity sha512-RSVh+d3zlRTj2bDrNude9S6XZAGGock3yNaS9gnXeowLA981fwfFhMJCjEsdAbAJZa7ExWAWhJF/Q570vK338Q==
   dependencies:
     "@metadata/exif" "^1.0.0"
 

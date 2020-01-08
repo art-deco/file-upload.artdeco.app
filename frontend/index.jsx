@@ -16,17 +16,10 @@ class GalleryForm extends SubmitForm {
     this.submit = this.submit.bind(this)
     this.state = {
       ...super.state,
-      uploadedResults: [],
       auth: {},
     }
   }
-  addUploadedResults(results) {
-    this.setState({ uploadedResults:
-      [...this.state.uploadedResults, ...results],
-    })
-  }
-  render({ galleryId, confirmText }) {
-    const { uploadedResults } = this.state
+  render({ galleryId, confirmText, uploadedResults }) {
     const { formLoading, error, success } = this.state
     const uri = `${this.context.host}/upload?key=abc`
     return (
@@ -46,10 +39,22 @@ class GalleryForm extends SubmitForm {
 <Success success={success} message="Images saved!" /> */}
 
 class App extends Auth {
+  constructor() {
+    super()
+    this.state = {
+      ...this.state,
+      uploadedResults: [],
+    }
+  }
   getChildContext() {
     return {
       host: this.props.host,
     }
+  }
+  addUploadedResults(results) {
+    this.setState({ uploadedResults:
+      [...this.state.uploadedResults, ...results],
+    })
   }
   render() {
     const au = (<AppUser error={this.state.error} loading={this.state.loading} auth={this.state.auth} host={this.props.host} onSignOut={() => {
@@ -59,7 +64,14 @@ class App extends Auth {
 
     return (<div>
       {au}
-      <GalleryForm confirmText="Save Uploads" />
+      <GalleryForm uploadedResults={this.state.uploadedResults} path="/save" confirmText="Save Uploads" submitFinish={async (result) => {
+        // the form responds with ids of added uploads
+        const { 'data': res } = await result.json()
+        if (res) {
+          this.addUploadedResults(res)
+          // await this.load()
+        }
+      }} />
     </div>)
   }
 }

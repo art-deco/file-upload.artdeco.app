@@ -63,7 +63,7 @@
     "@typedefs/goa": "^0.1.5",
     "alamode": "3.3.0",
     "depack": "^1.0.1",
-    "photo-uploader": "^1.0.0",
+    "photo-uploader": "^1.1.0",
     "preact": "8.5.3",
     "restream": "3.7.4",
     "rqt": "4.0.0",
