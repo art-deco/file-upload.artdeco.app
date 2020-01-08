@@ -16,12 +16,19 @@ class GalleryForm extends SubmitForm {
     this.submit = this.submit.bind(this)
     this.state = {
       ...super.state,
+      uploadedResults: [],
       auth: {},
     }
   }
-  render({ galleryId, confirmText, uploadedResults }) {
+  addUploadedResults(results) {
+    this.setState({ uploadedResults:
+      [...this.state.uploadedResults, ...results],
+    })
+  }
+  render({ galleryId, confirmText }) {
+    const { uploadedResults } = this.state
     const { formLoading, error, success } = this.state
-    const uri = `${this.context.host}/upload`
+    const uri = `${this.context.host}/upload?key=abc`
     return (
       <Form onSubmit={this.submit}>
         <input name="galleryId" value={galleryId} type="hidden" />

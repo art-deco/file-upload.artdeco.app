@@ -1,5 +1,5 @@
 /**
- * @param {neoluddite.Auth} auth
+ * @param {Auth} auth
  */
 export const getUserData = ({ linkedin_user, github_user }) => {
   let picture, name
@@ -13,5 +13,5 @@ export const getUserData = ({ linkedin_user, github_user }) => {
 
 /**
  * @suppress {nonStandardJsDocs}
- * @typedef {import('../../').Auth} neoluddite.Auth
+ * @typedef {import('../../').Auth} Auth
  */

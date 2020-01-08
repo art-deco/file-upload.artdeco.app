@@ -1,9 +1,11 @@
 import idio from '@idio/idio'
 import { sync } from 'uid-safe'
 import render from '@depack/render'
+import { unlinkSync, createReadStream } from 'fs'
 import initRoutes, { watchRoutes } from '@idio/router'
 import github from '@idio/github'
 import cleanStack from '@artdeco/clean-stack'
+import { join } from 'path'
 import DefaultLayout from '../layout'
 
 const {
@@ -25,13 +27,18 @@ export default async function Server({
   const { app, url, middleware, router } = await idio({
     cors: {
       use: true,
-      origin: PROD && [FRONT_END, HOST, 'http://localhost:5001'],
+      origin: PROD && [FRONT_END, HOST],
       credentials: true,
     },
     compress: { use: true },
-    form: {},
+    form: {
+      dest: 'upload',
+    },
     frontend: { use: true },
-    static: { use: PROD || CLOSURE, root: 'docs' },
+    static: [{ use: PROD || CLOSURE, root: 'docs' }, {
+      use: true,
+      root: 'upload',
+    }],
     session: { keys: [SESSION_KEY] },
     forms: {
       middlewareConstructor() {
@@ -70,9 +77,7 @@ export default async function Server({
           console.log(err.message)
         } else {
           ctx.body = { error: 'internal server error' }
-          err.stack = cleanStack(err.stack, {
-            // ignoredModules: ['koa-compose', 'koa-router', 'koa-session'],
-          })
+          err.stack = cleanStack(err.stack)
           app.emit('error', err)
         }
       }
@@ -97,6 +102,29 @@ export default async function Server({
 
   if (CLOSURE)
     console.log('Testing Closure bundle: %s', 'docs/index.js')
+
+  router.post('/upload',
+    middleware.session,
+    (ctx, next) => {
+      if (!ctx.session.github_user) throw new Error('!Authorisation required.')
+      return next()
+    },
+    (ctx, next) => middleware.form.single('image')(ctx, next),
+    async (ctx) => {
+      ctx.body = {
+        photoId: sync(18),
+        success: 1,
+        result: `/upload/${ctx.file.filename}`,
+      }
+    })
+  // demo: remove pictures after serving once
+  router.get('/upload/:filename', (ctx) => {
+    const file = join('upload', ctx.params.filename)
+    ctx.body = createReadStream(file)
+    ctx.body.on('end', () => {
+      unlinkSync(file)
+    })
+  })
 
   const w = await initRoutes(router, 'routes', {
     middleware,
@@ -126,19 +154,6 @@ export default async function Server({
       ctx.redirect('/callback')
     },
   })
-  router.post('/upload',
-    middleware.session,
-    (ctx, next) => {
-      if (!ctx.session.user) throw new Error('!Authorisation required.')
-      return next()
-    },
-    middleware.form.array('files'),
-    async (ctx) => {
-      ctx.body = {
-        csrf: '',
-        sas: '/upload',
-      }
-    })
 
   if (watch) watchRoutes(w)
   app.use(router.routes())
