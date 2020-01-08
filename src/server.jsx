@@ -1,6 +1,8 @@
 import idio from '@idio/idio'
+import { sync } from 'uid-safe'
 import render from '@depack/render'
 import initRoutes, { watchRoutes } from '@idio/router'
+import github from '@idio/github'
 import cleanStack from '@artdeco/clean-stack'
 import DefaultLayout from '../layout'
 
@@ -18,7 +20,7 @@ const PROD = NODE_ENV == 'production'
  * Starts the server.
  */
 export default async function Server({
-  port, appName, watch = !PROD,
+  port, appName, watch = !PROD, GITHUB_ID, GITHUB_SECRET,
 }) {
   const { app, url, middleware, router } = await idio({
     cors: {
@@ -31,6 +33,33 @@ export default async function Server({
     frontend: { use: true },
     static: { use: PROD || CLOSURE, root: 'docs' },
     session: { keys: [SESSION_KEY] },
+    forms: {
+      middlewareConstructor() {
+        return async (ctx, next) => {
+          const f = middleware.form.any()
+          await f(ctx, next)
+        }
+      },
+    },
+    csrf: { middlewareConstructor() {
+      return async (ctx, next) => {
+        const { session } = ctx
+        if (!session) throw new Error('!Session does not exist.')
+        const { csrf } = session
+        if (!csrf) {
+          ctx.body = { error: '!Not signed in' }
+          ctx.status = 400
+          return
+        }
+        const { csrf: c } = ctx.request.body
+        if (csrf != c) {
+          ctx.body = { error: '!Invalid csrf token.' }
+          ctx.status = 401
+          return
+        }
+        await next()
+      }
+    } },
 
     async jsonErrors(ctx, next) {
       try {
@@ -72,6 +101,45 @@ export default async function Server({
   const w = await initRoutes(router, 'routes', {
     middleware,
   })
+
+  github(app, {
+    session: middleware.session,
+    client_id: GITHUB_ID,
+    client_secret: GITHUB_SECRET,
+    /**
+     * @param {import('..').Context} ctx
+     */
+    async finish(ctx, token, scope, user) {
+      ctx.session.github_token = token
+      if (!user.login) throw new Error('Login is missing.')
+
+      const u = {
+        login: user.login,
+        name: user.name,
+        avatar_url: user.avatar_url,
+        html_url: user.html_url,
+      }
+      ctx.session.github_user = u
+
+      if (!ctx.session.csrf) ctx.session.csrf = sync(18)
+      await ctx.session.manuallyCommit()
+      ctx.redirect('/callback')
+    },
+  })
+  router.post('/upload',
+    middleware.session,
+    (ctx, next) => {
+      if (!ctx.session.user) throw new Error('!Authorisation required.')
+      return next()
+    },
+    middleware.form.array('files'),
+    async (ctx) => {
+      ctx.body = {
+        csrf: '',
+        sas: '/upload',
+      }
+    })
+
   if (watch) watchRoutes(w)
   app.use(router.routes())
   return { app, url }
