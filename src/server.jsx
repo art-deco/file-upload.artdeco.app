@@ -85,6 +85,7 @@ export default async function Server({
   }, { port })
 
   Object.assign(app.context, {
+    PROD,
     prod: PROD,
     HOST: PROD ? HOST : url,
     STATIC_HOST: PROD ? STATIC : url,
