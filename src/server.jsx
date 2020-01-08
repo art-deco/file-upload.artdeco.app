@@ -8,6 +8,7 @@ const {
   NODE_ENV,
   HOST = 'https://file-upload.artdeco.app',
   FRONT_END = 'https://file-upload.artdeco.app',
+  STATIC = 'https://art-deco.github.io/file-upload.artdeco.app',
   CLOSURE, // for /comments page
   SESSION_KEY,
 } = process.env
@@ -54,6 +55,7 @@ export default async function Server({
   Object.assign(app.context, {
     prod: PROD,
     HOST: PROD ? HOST : url,
+    STATIC_HOST: PROD ? STATIC : url,
     CLOSURE: PROD || CLOSURE,
     appName,
     render: (vnode, props = {}, Layout = DefaultLayout) => {
