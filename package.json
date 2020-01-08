@@ -53,8 +53,7 @@
     "erte": "1.2.0",
     "logarithm": "^2.0.1",
     "mongodb": "^3.4.1",
-    "svg-captcha": "^1.4.0",
-    "uid-safe": "2.1.5"
+    "svg-captcha": "^1.4.0"
   },
   "devDependencies": {
     "@a-la/jsx": "1.6.0",
