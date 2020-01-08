@@ -15,7 +15,7 @@
     "start": "node src",
     "closure": "CLOSURE=1 node src",
     "dev": "node src",
-    "doc": "NODE_DEBUG=doc doc -o README.md",
+    "doc": "doc -o README.md -d",
     "b": "alamode src -o build -s -i index.js",
     "deploy": "git push api",
     "d": "yarn-s d1 externs",

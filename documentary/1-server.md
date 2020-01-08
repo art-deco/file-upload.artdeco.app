@@ -4,7 +4,7 @@ The server is implemented using the `@idio/idio` package with the route initiali
 
 %EXAMPLE: src/server%
 
-The server is used in such a way as to enable all _Idio_ middleware:
+The server is used in such a way as to enable all _Idio_ middleware. Additional custom middleware is added as functions to the config (`forms` to just parse form-data without file upload, `csrf` for validation of CSRF tokens either from the query or form-data, and `jsonErrors` to catch any errors and send them as JSON).
 
 ### 1. cors
 
