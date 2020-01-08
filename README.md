@@ -241,9 +241,9 @@ The development version is served using ES modules which are supported by the br
 ```jsx
 import Form, { FormGroup, SubmitButton, SubmitForm } from '@depack/form'
 import PhotoUploader from 'photo-uploader'
+import { render } from 'preact'
 import Auth from './Auth'
 import AppUser from './Auth/AppUser'
-import { render } from 'preact'
 
 const _host = window['HOST'] || 'http://localhost:5000'
 
@@ -275,9 +275,6 @@ class GalleryForm extends SubmitForm {
   }
 }
 
-{/* <ErrorAlert error={error} />
-<Success success={success} message="Images saved!" /> */}
-
 class App extends Auth {
   constructor() {
     super()
@@ -297,7 +294,6 @@ class App extends Auth {
     })
   }
   render() {
-    console.log(this.state.auth.csrf)
     const au = (<AppUser error={this.state.error} loading={this.state.loading} auth={this.state.auth} host={this.props.host} onSignOut={() => {
       this.setState({ auth: {} })
     }} />)
@@ -310,7 +306,6 @@ class App extends Auth {
         const { 'data': res } = await result.json()
         if (res) {
           this.addUploadedResults(res)
-          // await this.load()
         }
       }} csrf={this.state.auth.csrf} />
     </div>)
