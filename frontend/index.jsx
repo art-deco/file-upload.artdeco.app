@@ -16,12 +16,11 @@ class GalleryForm extends SubmitForm {
     this.submit = this.submit.bind(this)
     this.state = {
       ...super.state,
-      auth: {},
     }
   }
-  render({ galleryId, confirmText, uploadedResults }) {
+  render({ galleryId, confirmText, uploadedResults, csrf }) {
     const { formLoading, error, success } = this.state
-    const uri = `${this.context.host}/upload?key=abc`
+    const uri = `${this.context.host}/upload?csrf=${csrf}`
     return (
       <Form onSubmit={this.submit}>
         <input name="galleryId" value={galleryId} type="hidden" />
@@ -57,6 +56,7 @@ class App extends Auth {
     })
   }
   render() {
+    console.log(this.state.auth.csrf)
     const au = (<AppUser error={this.state.error} loading={this.state.loading} auth={this.state.auth} host={this.props.host} onSignOut={() => {
       this.setState({ auth: {} })
     }} />)
@@ -71,7 +71,7 @@ class App extends Auth {
           this.addUploadedResults(res)
           // await this.load()
         }
-      }} />
+      }} csrf={this.state.auth.csrf} />
     </div>)
   }
 }

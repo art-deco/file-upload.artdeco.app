@@ -5,7 +5,7 @@ import { unlinkSync, createReadStream } from 'fs'
 import initRoutes, { watchRoutes } from '@idio/router'
 import github from '@idio/github'
 import cleanStack from '@artdeco/clean-stack'
-import { join } from 'path'
+import { join, parse } from 'path'
 import DefaultLayout from '../layout'
 
 const {
@@ -24,6 +24,7 @@ const PROD = NODE_ENV == 'production'
 export default async function Server({
   port, appName, watch = !PROD, GITHUB_ID, GITHUB_SECRET,
 }) {
+  /* start example */
   const { app, url, middleware, router } = await idio({
     cors: {
       use: true,
@@ -34,8 +35,8 @@ export default async function Server({
     form: {
       dest: 'upload',
     },
-    frontend: { use: true },
-    static: [{ use: PROD || CLOSURE, root: 'docs' }, {
+    frontend: { use: !PROD },
+    static: [{ use: CLOSURE, root: 'docs' }, {
       use: true,
       root: 'upload',
     }],
@@ -58,7 +59,9 @@ export default async function Server({
           ctx.status = 400
           return
         }
-        const { csrf: c } = ctx.request.body
+        const { csrf: c1 } = ctx.request.body
+        const { csrf: c2 } = ctx.query
+        const c = c1 || c2
         if (csrf != c) {
           ctx.body = { error: '!Invalid csrf token.' }
           ctx.status = 401
@@ -67,7 +70,6 @@ export default async function Server({
         await next()
       }
     } },
-
     async jsonErrors(ctx, next) {
       try {
         await next()
@@ -83,6 +85,7 @@ export default async function Server({
       }
     },
   }, { port })
+  /* end example */
 
   Object.assign(app.context, {
     PROD,
@@ -111,22 +114,26 @@ export default async function Server({
       return next()
     },
     (ctx, next) => middleware.form.single('image')(ctx, next),
+    middleware.csrf,
     async (ctx) => {
+      const { ext } = parse(ctx.file.originalname)
       ctx.body = {
         photoId: sync(18),
         success: 1,
-        result: `/upload/${ctx.file.filename}`,
+        result: `/upload/${ctx.file.filename}${ext}`,
       }
     })
   // demo: remove pictures after serving once
   router.get('/upload/:filename', (ctx) => {
-    const file = join('upload', ctx.params.filename)
+    let { filename } = ctx.params
+    const { name, ext } = parse(filename)
+    const file = join('upload', name)
+    ctx.type = ext
     ctx.body = createReadStream(file)
     ctx.body.on('end', () => {
       unlinkSync(file)
     })
   })
-
   router.post('/save',
     (ctx, next) => middleware.form.none()(ctx, next),
     (ctx) => {
