@@ -28,10 +28,8 @@ export default async function Server({
     },
     compress: { use: true },
     form: {},
-    frontend: {
-      use: true,
-    },
-    static: { use: PROD, root: 'docs' },
+    frontend: { use: true },
+    static: { use: PROD || CLOSURE, root: 'docs' },
     session: { keys: [SESSION_KEY] },
 
     async jsonErrors(ctx, next) {

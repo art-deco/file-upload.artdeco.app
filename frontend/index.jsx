@@ -5,4 +5,4 @@ class App extends Component {
     return (<div>Hello Preact</div>)
   }
 }
-render(<App />, window['preact'])
+render(<App />, window['preact-container'])
