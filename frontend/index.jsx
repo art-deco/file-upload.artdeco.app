@@ -24,6 +24,7 @@ class GalleryForm extends SubmitForm {
     const uri = `${this.context.host}/upload?csrf=${csrf}`
     return (
       <Form onSubmit={this.submit}>
+        <input name="csrf" value={csrf} type="hidden" />
         <input name="galleryId" value={galleryId} type="hidden" />
         <FormGroup label="File Upload" help="Please select some images and upload them.">
           <PhotoUploader uploadUri={uri} onPhotoUploaded={this.reset} onAdded={this.reset} onRemove={this.reset}

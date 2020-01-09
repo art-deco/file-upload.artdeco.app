@@ -20,6 +20,8 @@ This app is the back-end for the [File Upload](https://file-upload.artdeco.app) 
   * [4. frontend](#4-frontend)
   * [5. static](#5-static)
   * [6. session](#6-session)
+- [NeoLuddite.Dev](#neoludditedev)
+- [.env](#env)
 - [Router](#router)
   * [watch routes](#watch-routes)
 - [Front End](#front-end)
@@ -38,8 +40,12 @@ The server is implemented using the `@idio/idio` package with the route initiali
 
 ```jsx
 const { app, url, middleware, router } = await idio({
+  neoluddite: {
+    key: NEOLUDDITE,
+    env: process.env.NODE_ENV,
+    app: appName,
+  },
   cors: {
-    use: true,
     origin: PROD && [FRONT_END, HOST],
     credentials: true,
   },
@@ -61,31 +67,14 @@ const { app, url, middleware, router } = await idio({
       }
     },
   },
-  csrf: { middlewareConstructor() {
-    return async (ctx, next) => {
-      const { session } = ctx
-      if (!session) throw new Error('!Session does not exist.')
-      const { csrf } = session
-      if (!csrf) {
-        ctx.body = { error: '!Not signed in' }
-        ctx.status = 400
-        return
-      }
-      const { csrf: c1 } = ctx.request.body
-      const { csrf: c2 } = ctx.query
-      const c = c1 || c2
-      if (csrf != c) {
-        ctx.body = { error: '!Invalid csrf token.' }
-        ctx.status = 401
-        return
-      }
-      await next()
-    }
-  } },
+  csrfCheck: {},
   async jsonErrors(ctx, next) {
     try {
       await next()
     } catch (err) {
+      if (err.statusCode && err.statusCode >= 400 && err.statusCode <= 500) {
+        err.message = err.message.replace(/^([^!])/, '!$1')
+      }
       if (err.message.startsWith('!')) {
         ctx.body = { error: err.message.replace('!', '') }
         console.log(err.message)
@@ -149,6 +138,32 @@ File upload is only allowed to signed-in users. The authentication is performed 
   <img src="/.documentary/section-breaks/2.svg?sanitize=true">
 </a></p>
 
+## NeoLuddite.Dev
+
+_Idio's_ license is a restrictive Affero GPL v3, which means that to use the web-server for production use on the internet (but not intranet), any application must publish its source code. This discourages fair compensation for intellectual capacity of people who worked on creating the middleware. To reward authors, the [neoluddite.dev](https://neoluddite.dev) service records usage of each piece of middleware via _Idio_, and transfers funds to the package maintainers from package consumers.
+
+To join the service, one needs to sign up with their GitHub account, and receive an API key with 1m free Ludds (coins) each month. The key is then passed to the middleware configuration, along with the environment from the `process.env.NODE_ENV`, as only production use is billed.
+
+<p align="center"><a href="#table-of-contents">
+  <img src="/.documentary/section-breaks/3.svg?sanitize=true">
+</a></p>
+
+## .env
+
+When deployed, the app will need to have _environment_ variables set for its correct operation. Locally, these variables should be kept in the `.env` file, which will be parsed when the server starts.
+
+```env
+# .env
+SESSION_KEY=this-is-my-session-key
+GITHUB_ID=2a32ec482b43a6a4e314
+GITHUB_SECRET=7041ecd99f95a9be86f62a32ec482b43a6a4e314
+NEOLUDDITE=4c386e77-cb9d-4d36-9a1a-76714fed9626
+```
+
+<p align="center"><a href="#table-of-contents">
+  <img src="/.documentary/section-breaks/4.svg?sanitize=true">
+</a></p>
+
 
 ## Router
 
@@ -164,7 +179,7 @@ router.post('/upload',
     return next()
   },
   // 3. extract csrf from the query and match against session
-  middleware.csrf,
+  middleware.csrfCheck,
   // 4. receive an upload with "image" file field
   (ctx, next) => middleware.form.single('image')(ctx, next),
   // 5. handle uploaded file
@@ -178,7 +193,9 @@ router.post('/upload',
   }
 )
 router.post('/save',
+  middleware.session,
   (ctx, next) => middleware.form.none()(ctx, next),
+  middleware.csrfCheck,
   (ctx) => {
     ctx.body = { data: ctx.request.body.photos }
   }
@@ -199,11 +216,11 @@ export default (ctx) => {
 }
 
 export const middleware = (route) =>
-  ['session', 'forms', 'csrf', route]
+  ['cors', 'session', 'forms', 'csrfCheck', route]
 ```
 
 <p align="center"><a href="#table-of-contents">
-  <img src="/.documentary/section-breaks/3.svg?sanitize=true">
+  <img src="/.documentary/section-breaks/5.svg?sanitize=true">
 </a></p>
 
 ## Front End
@@ -233,6 +250,8 @@ frontend
 ```
 
 `index.js` in an entry file, which is responsible for authenticating the user via back-end, and renderning the gallery widget. The session handling will redirect users to `/callback` route, which will post a message using `window.postMessage`, and the user info will be automatically updated upon sign in.
+
+To test the compiled bundle, the `closure` script from _package.json_ is used. It will set the `CLOSURE` env variable that will make sure that the compiled bundle is served from the `docs` folder, instead of via the _FrontEnd_ middleware. This allows to make sure locally that the compiled source code is working, before pushing to CDN.
 
 ### development
 
@@ -264,6 +283,7 @@ class GalleryForm extends SubmitForm {
     const uri = `${this.context.host}/upload?csrf=${csrf}`
     return (
       <Form onSubmit={this.submit}>
+        <input name="csrf" value={csrf} type="hidden" />
         <input name="galleryId" value={galleryId} type="hidden" />
         <FormGroup label="File Upload" help="Please select some images and upload them.">
           <PhotoUploader uploadUri={uri} onPhotoUploaded={this.reset} onAdded={this.reset} onRemove={this.reset}

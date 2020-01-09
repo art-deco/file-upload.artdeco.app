@@ -12,7 +12,7 @@ router.post('/upload',
     return next()
   },
   // 3. extract csrf from the query and match against session
-  middleware.csrf,
+  middleware.csrfCheck,
   // 4. receive an upload with "image" file field
   (ctx, next) => middleware.form.single('image')(ctx, next),
   // 5. handle uploaded file
@@ -26,7 +26,9 @@ router.post('/upload',
   }
 )
 router.post('/save',
+  middleware.session,
   (ctx, next) => middleware.form.none()(ctx, next),
+  middleware.csrfCheck,
   (ctx) => {
     ctx.body = { data: ctx.request.body.photos }
   }
@@ -47,7 +49,7 @@ export default (ctx) => {
 }
 
 export const middleware = (route) =>
-  ['session', 'forms', 'csrf', route]
+  ['cors', 'session', 'forms', 'csrfCheck', route]
 ```
 
 %~%

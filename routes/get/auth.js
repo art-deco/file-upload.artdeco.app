@@ -12,7 +12,7 @@ export default (ctx) => {
   })
 }
 
-export const middleware = ['session']
+export const middleware = ['cors', 'session']
 
 /**
  * @suppress {nonStandardJsDocs}

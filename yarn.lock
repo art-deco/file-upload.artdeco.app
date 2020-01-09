@@ -74,12 +74,12 @@
   resolved "https://registry.yarnpkg.com/@idio/github/-/github-1.0.4.tgz#f71956ee4bfbbd0ae4e5898988cd978f1cb70164"
   integrity sha512-dsWXlG/k+CiHooDy6oV0ayncBBSCsbtfaiVxALF1XgwjxHI2Q9ERWPp4SIzkT2ySXboRYppoJVaOMkpqzAsypQ==
 
-"@idio/idio@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@idio/idio/-/idio-1.0.1.tgz#e8e13df52200891994cd87f75ba87fc92768339f"
-  integrity sha512-g4ZbLVF6SUZEBRHBFpSf6GDFGBCc4ofOdgfI4Z/zjb8MNB2QcGWML0Lhd0iI/iixxBdyift0gnTphElwHu11sA==
+"@idio/idio@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@idio/idio/-/idio-1.1.2.tgz#cdc47edd02865937a3f70dabac0e6beff0564c3a"
+  integrity sha512-8UIfIlFRK4Btgv9pSABRUzBbo3fFvnFm6mTGhxdsdrPBerF/5jaCvJ02j2aNZQZ06k6NDsiuGUg/nTMP/z4+hQ==
   dependencies:
-    mime-db "^1.42.0"
+    mime-db "^1.43.0"
     text-decoding "^1.0.0"
 
 "@idio/linkedin@1.4.0":
@@ -316,10 +316,10 @@ isarray@~1.0.0:
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
   integrity sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=
 
-logarithm@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/logarithm/-/logarithm-2.0.1.tgz#c8a53ce491d5f9ff0cf7f294687964e93cc0442a"
-  integrity sha512-wJSiqmAhyyAxleePoOT1Tp0ZaQ5c0L8sh9016IEGc6Vbef/b77QYz/C3upevyWpdVNwBipBvZ8ag2fumw4WM4w==
+logarithm@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/logarithm/-/logarithm-2.1.2.tgz#8daa03c18d0d3a321770a35db68214f25ba8179c"
+  integrity sha512-olpOry4ZtHlX1JuN6SQ/XWdDHFq23r+MHNrtSSNzjenwhDKE8yUN+MnZNPsoXeKVzNa/TERKhQGWlY9qqbBGZQ==
 
 makepromise@^3.0.3, makepromise@^3.1.0:
   version "3.1.0"
@@ -333,10 +333,10 @@ memory-pager@^1.0.2:
   resolved "https://registry.yarnpkg.com/memory-pager/-/memory-pager-1.5.0.tgz#d8751655d22d384682741c972f2c3d6dfa3e66b5"
   integrity sha512-ZS4Bp4r/Zoeq6+NLJpP+0Zzm0pR8whtGPf1XExKLJBAczGMnSi3It14OiNCStjQjM6NU1okjQGSxgEZN8eBYKg==
 
-mime-db@^1.42.0:
-  version "1.42.0"
-  resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.42.0.tgz#3e252907b4c7adb906597b4b65636272cf9e7bac"
-  integrity sha512-UbfJCR4UAVRNgMpfImz05smAXK7+c+ZntjaA26ANtkXLlOe947Aag5zdIcKQULAiF9Cq4WxBi9jUs5zkA84bYQ==
+mime-db@^1.43.0:
+  version "1.43.0"
+  resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.43.0.tgz#0a12e0502650e473d735535050e7c8f4eb4fae58"
+  integrity sha512-+5dsGEEovYbT8UY9yD7eE4XTc4UwJ1jBYlgaQQF38ENsKR3wj/8q8RFZrF9WIZpB2V1ArTVFUva8sAul1NzRzQ==
 
 mimic-response@^2.0.0:
   version "2.0.0"

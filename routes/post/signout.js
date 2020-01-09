@@ -7,4 +7,4 @@ export default (ctx) => {
 }
 
 export const middleware = (route) =>
-  ['session', 'forms', 'csrf', route]
+  ['cors', 'session', 'forms', 'csrfCheck', route]

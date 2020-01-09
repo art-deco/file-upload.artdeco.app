@@ -51,3 +51,25 @@ The `static` configuration contains 2 records for 2 purposes:
 File upload is only allowed to signed-in users. The authentication is performed with _GitHub_, which stores `github_user` info in session alongside a _CSRF_ token generated once for each user. The authentication information is made available via the `/auth` [route](routes/get/auth.js) which is accessed once the app is mounted. The middleware chain for file upload will first check if the user is present in the session, then that the declared _CSRF_ token is correct, and finally execute the server logic.
 
 %~%
+
+## NeoLuddite.Dev
+
+_Idio's_ license is a restrictive Affero GPL v3, which means that to use the web-server for production use on the internet (but not intranet), any application must publish its source code. This discourages fair compensation for intellectual capacity of people who worked on creating the middleware. To reward authors, the [neoluddite.dev](https://neoluddite.dev) service records usage of each piece of middleware via _Idio_, and transfers funds to the package maintainers from package consumers.
+
+To join the service, one needs to sign up with their GitHub account, and receive an API key with 1m free Ludds (coins) each month. The key is then passed to the middleware configuration, along with the environment from the `process.env.NODE_ENV`, as only production use is billed.
+
+%~%
+
+## .env
+
+When deployed, the app will need to have _environment_ variables set for its correct operation. Locally, these variables should be kept in the `.env` file, which will be parsed when the server starts.
+
+```env
+# .env
+SESSION_KEY=this-is-my-session-key
+GITHUB_ID=2a32ec482b43a6a4e314
+GITHUB_SECRET=7041ecd99f95a9be86f62a32ec482b43a6a4e314
+NEOLUDDITE=4c386e77-cb9d-4d36-9a1a-76714fed9626
+```
+
+%~%

@@ -13,6 +13,7 @@ const {
   HOST = 'https://file-upload.artdeco.app',
   FRONT_END = 'https://file-upload.artdeco.app',
   STATIC = 'https://art-deco.github.io/file-upload.artdeco.app',
+  NEOLUDDITE,
   CLOSURE, // for /comments page
   SESSION_KEY,
 } = process.env
@@ -26,8 +27,12 @@ export default async function Server({
 }) {
   /* start example */
   const { app, url, middleware, router } = await idio({
+    neoluddite: {
+      key: NEOLUDDITE,
+      env: process.env.NODE_ENV,
+      app: appName,
+    },
     cors: {
-      use: true,
       origin: PROD && [FRONT_END, HOST],
       credentials: true,
     },
@@ -49,31 +54,14 @@ export default async function Server({
         }
       },
     },
-    csrf: { middlewareConstructor() {
-      return async (ctx, next) => {
-        const { session } = ctx
-        if (!session) throw new Error('!Session does not exist.')
-        const { csrf } = session
-        if (!csrf) {
-          ctx.body = { error: '!Not signed in' }
-          ctx.status = 400
-          return
-        }
-        const { csrf: c1 } = ctx.request.body
-        const { csrf: c2 } = ctx.query
-        const c = c1 || c2
-        if (csrf != c) {
-          ctx.body = { error: '!Invalid csrf token.' }
-          ctx.status = 401
-          return
-        }
-        await next()
-      }
-    } },
+    csrfCheck: {},
     async jsonErrors(ctx, next) {
       try {
         await next()
       } catch (err) {
+        if (err.statusCode && err.statusCode >= 400 && err.statusCode <= 500) {
+          err.message = err.message.replace(/^([^!])/, '!$1')
+        }
         if (err.message.startsWith('!')) {
           ctx.body = { error: err.message.replace('!', '') }
           console.log(err.message)
@@ -114,7 +102,7 @@ export default async function Server({
       return next()
     },
     (ctx, next) => middleware.form.single('image')(ctx, next),
-    middleware.csrf,
+    middleware.csrfCheck,
     async (ctx) => {
       const { ext } = parse(ctx.file.originalname)
       ctx.body = {
@@ -135,7 +123,9 @@ export default async function Server({
     })
   })
   router.post('/save',
+    middleware.session,
     (ctx, next) => middleware.form.none()(ctx, next),
+    middleware.csrfCheck,
     (ctx) => {
       ctx.body = { data: ctx.request.body.photos }
     })
@@ -163,7 +153,7 @@ export default async function Server({
       }
       ctx.session.github_user = u
 
-      if (!ctx.session.csrf) ctx.session.csrf = sync(18)
+      ctx.session.csrf = sync(18)
       await ctx.session.manuallyCommit()
       ctx.redirect('/callback')
     },
