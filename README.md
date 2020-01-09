@@ -14,6 +14,7 @@ This app is the back-end for the [File Upload](https://file-upload.artdeco.app) 
 
 - [On This Page](#on-this-page)
 - [The Server](#the-server)
+  * [0. neoluddite](#0-neoluddite)
   * [1. cors](#1-cors)
   * [2. compression](#2-compression)
   * [3. form](#3-form)
@@ -90,13 +91,19 @@ const { app, url, middleware, router } = await idio({
 
 The server is used in such a way as to enable all _Idio_ middleware. Additional custom middleware is added as functions to the config (`forms` to just parse form-data without file upload, `csrf` for validation of CSRF tokens either from the query or form-data, and `jsonErrors` to catch any errors and send them as JSON).
 
+### 0. neoluddite
+
+See the [NeoLuddite.Dev](#neoludditedev) section.
+
 ### 1. cors
 
-Cors is needed since images are uploaded using Ajax requests, therefore to send data to the server, the browser needs to make sure that the domain security is in tact (no sending data from 3rd party domains).
+CORS is needed since images are uploaded using _Ajax_ requests, therefore to send data to the server, the browser needs to make sure that the domain security is in tact (no sending data from 3rd party domains). When the application's back-end is hosted on the same domain as front-end, this middleware won't be activated as the browser won't send the `Origin` header (only `sec-fetch-mode: cors` and `sec-fetch-site: same-origin`). However, if the frontend was invoked from a page from a different domain (or subdomain), _CORS_ is needed. For example, when a back-end is at `file-upload.com` but the front-end is at `file-upload.github.io`, without CORS Ajax cross-domain requests will fail.
+
+We also don't install CORS for each request, and only do it manually for routes that constitute Ajax _API_ request handlers.
 
 ### 2. compression
 
-Compression for images is not useful, therefore the standard compressible filter utilises the `mime-db` information to find out if the response should be compressed:
+Before sending off data, the server can decide to run it through a gzip stream. However, compression for images is not very useful, therefore the standard compressible filter utilises the `mime-db` information to find out if the response should be compressed:
 
 ```json
 {
@@ -114,15 +121,17 @@ Compression for images is not useful, therefore the standard compressible filter
 }
 ```
 
-Uploaded files are saved on the disk for serving later on, and if the image can be compressed (e.g., an SVG), the compression middleware will make sure that the response stream is run through GZIP.
+Uploaded files are saved on the disk for serving later on, and if the image can be compressed (e.g., if it's an SVG), the compression middleware will make sure that the response stream is run through GZIP.
 
 ### 3. form
 
 Images are sent using `multipart/form-data` HTTP protocol that uses boundaries to split fields and files. By specifying the destination into which to upload files, this middleware will make `ctx.file` accessible to the context if files were uploaded. If no destination was provided, files would be saved in memory, which is not ideal since due to many parallel requests that can exhaust memory of the server.
 
+_FormData_ middleware can be used to upload many files via a single request, in which case their information will be stored in the `ctx.files` property. Parsed body of the form with fields, is always made available via the `ctx.request.body` property. This allows to extract the `csrf` token which is sent along when uploading files and compare it to the one recorded in the session when it was initialised.
+
 ### 4. frontend
 
-The frontend middleware is used for development purposes to render JSX and serve components from `node_modules`, such as the _PhotoUploader_ component published as a separate package. The frontend bundle is compiled for production use, therefore this middleware is used only for development.
+The frontend middleware is used for development purposes to transpile _JSX_ and serve components from `node_modules`, such as the _PhotoUploader_ component published as a separate package. The frontend bundle is compiled for production use, therefore this middleware is used only for development.
 
 ### 5. static
 
