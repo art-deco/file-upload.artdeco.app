@@ -54,9 +54,9 @@ File upload is only allowed to signed-in users. The authentication is performed 
 
 ## NeoLuddite.Dev
 
-_Idio's_ license is a restrictive Affero GPL v3, which means that to use the web-server for production use on the internet (but not intranet), any application must publish its source code. This discourages fair compensation for intellectual capacity of people who worked on creating the middleware. To reward authors, the [neoluddite.dev](https://neoluddite.dev) service records usage of each piece of middleware via _Idio_, and transfers funds to the package maintainers from package consumers.
+_Idio's_ license is a restrictive Affero GPL v3, which means that to use the web-server for production on the internet (but not intranet), any application must publish its source code. Standard permissive licenses discourages fair compensation for intellectual capacity of people who worked on creating the middleware. To reward authors, the [neoluddite.dev](https://neoluddite.dev) service records usage of each piece of middleware via _Idio_, and transfers funds to the package maintainers from package consumers.
 
-To join the service, one needs to sign up with their GitHub account, and receive an API key with 1m free Ludds (coins) each month. The key is then passed to the middleware configuration, along with the environment from the `process.env.NODE_ENV`, as only production use is billed.
+To join the service, one needs to sign up with their GitHub account, and receive an API key with 1m free Ludds (coins) each month. The key is then passed to the middleware configuration, along with the environment from the `process.env.NODE_ENV`, as only production use is billed. The `appName` is only required for sorting data on the portal.
 
 %~%
 
